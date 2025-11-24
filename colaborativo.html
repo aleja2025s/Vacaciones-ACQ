@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario Nu Colombia 2025 - Colaborativo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Google Sans', sans-serif;
+            background: linear-gradient(135deg, #820AD1 0%, #A259FF 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(130, 10, 209, 0.3);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            color: #820AD1;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .year {
+            color: #820AD1;
+            font-size: 24px;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+
+
+        .month-section {
+            margin-bottom: 40px;
+        }
+
+        .month-section:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .month-name {
+            color: #333;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day-header {
+            color: #820AD1;
+            font-weight: 700;
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .day {
+            aspect-ratio: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 8px 4px;
+            font-weight: 500;
+            font-size: 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: #333;
+            min-height: 70px;
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .day-note {
+            font-size: 10px;
+            text-align: center;
+            color: #666;
+            width: 100%;
+            outline: none;
+            border: none;
+            background: transparent;
+            cursor: text;
+            line-height: 1.2;
+            min-height: 24px;
+        }
+
+        .day-note:focus {
+            background: rgba(130, 10, 209, 0.05);
+            border-radius: 4px;
+        }
+
+        .day-note:empty:before {
+            content: attr(data-placeholder);
+            color: #CCC;
+        }
+
+        .day:not(.empty):not(.past):hover {
+            background: #F5E6FF;
+            transform: scale(1.05);
+        }
+
+        .day.today {
+            background: #820AD1;
+            color: white;
+            font-weight: 700;
+        }
+
+        .day.today .day-note {
+            color: white;
+        }
+
+        .day.today .day-note:empty:before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .day.past {
+            color: #CCC;
+            cursor: default;
+        }
+
+        .day.past:hover {
+            background: transparent;
+            transform: none;
+        }
+
+        .day.empty {
+            cursor: default;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #820AD1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .share-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #F5E6FF;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #820AD1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: 'Google Sans', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #6A08B0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(130, 10, 209, 0.3);
+        }
+
+        .btn.secondary {
+            background: white;
+            color: #820AD1;
+            border: 2px solid #820AD1;
+        }
+
+        .btn.secondary:hover {
+            background: #F5E6FF;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #820AD1;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-family: 'Google Sans', sans-serif;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(130, 10, 209, 0.4);
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .sync-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CAF50;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 600px) {
+            .calendar-container {
+                padding: 20px;
+            }
+            
+            .logo {
+                font-size: 36px;
+            }
+            
+            .month-name {
+                font-size: 20px;
+            }
+            
+            .day {
+                font-size: 14px;
+                min-height: 60px;
+                padding: 6px 2px;
+            }
+
+            .day-note {
+                font-size: 9px;
+            }
+
+            .calendar-grid {
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        <div class="header">
+            <div class="logo">Nu</div>
+            <div class="year">2025</div>
+        </div>
+
+        <!-- Noviembre 2025 -->
+        <div class="month-section">
+            <div class="month-name">Noviembre</div>
+            <div class="calendar-grid">
+                <div class="day-header">Dom</div>
+                <div class="day-header">Lun</div>
+                <div class="day-header">Mar</div>
+                <div class="day-header">Mié</div>
+                <div class="day-header">Jue</div>
+                <div class="day-header">Vie</div>
+                <div class="day-header">Sáb</div>
+
+                <div class="day empty"></div>
+                <div class="day empty"></div>
+                <div class="day empty"></div>
+                <div class="day empty"></div>
+                <div class="day empty"></div>
+                <div class="day empty"></div>
+                <div class="day past"><div class="day-number">1</div></div>
+                
+                <div class="day past"><div class="day-number">2</div></div>
+                <div class="day past"><div class="day-number">3</div></div>
+                <div class="day past"><div class="day-number">4</div></div>
+                <div class="day past"><div class="day-number">5</div></div>
+                <div class="day past"><div class="day-number">6</div></div>
+                <div class="day past"><div class="day-number">7</div></div>
+                <div class="day past"><div class="day-number">8</div></div>
+                
+                <div class="day past"><div class="day-number">9</div></div>
+                <div class="day past"><div class="day-number">10</div></div>
+                <div class="day past"><div class="day-number">11</div></div>
+                <div class="day past"><div class="day-number">12</div></div>
+                <div class="day past"><div class="day-number">13</div></div>
+                <div class="day past"><div class="day-number">14</div></div>
+                <div class="day past"><div class="day-number">15</div></div>
+                
+                <div class="day past"><div class="day-number">16</div></div>
+                <div class="day past"><div class="day-number">17</div></div>
+                <div class="day past"><div class="day-number">18</div></div>
+                <div class="day past"><div class="day-number">19</div></div>
+                <div class="day past"><div class="day-number">20</div></div>
+                <div class="day past"><div class="day-number">21</div></div>
+                <div class="day past"><div class="day-number">22</div></div>
+                
+                <div class="day past"><div class="day-number">23</div></div>
+                <div class="day" data-month="11" data-day="24">
+                    <div class="day-number">24</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="11" data-day="25">
+                    <div class="day-number">25</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="11" data-day="26">
+                    <div class="day-number">26</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="11" data-day="27">
+                    <div class="day-number">27</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="11" data-day="28">
+                    <div class="day-number">28</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="11" data-day="29">
+                    <div class="day-number">29</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                
+                <div class="day" data-month="11" data-day="30">
+                    <div class="day-number">30</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diciembre 2025 -->
+        <div class="month-section">
+            <div class="month-name">Diciembre</div>
+            <div class="calendar-grid">
+                <div class="day-header">Dom</div>
+                <div class="day-header">Lun</div>
+                <div class="day-header">Mar</div>
+                <div class="day-header">Mié</div>
+                <div class="day-header">Jue</div>
+                <div class="day-header">Vie</div>
+                <div class="day-header">Sáb</div>
+
+                <div class="day empty"></div>
+                <div class="day" data-month="12" data-day="1">
+                    <div class="day-number">1</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="2">
+                    <div class="day-number">2</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="3">
+                    <div class="day-number">3</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="4">
+                    <div class="day-number">4</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="5">
+                    <div class="day-number">5</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="6">
+                    <div class="day-number">6</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                
+                <div class="day" data-month="12" data-day="7">
+                    <div class="day-number">7</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="8">
+                    <div class="day-number">8</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="9">
+                    <div class="day-number">9</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="10">
+                    <div class="day-number">10</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="11">
+                    <div class="day-number">11</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="12">
+                    <div class="day-number">12</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="13">
+                    <div class="day-number">13</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                
+                <div class="day" data-month="12" data-day="14">
+                    <div class="day-number">14</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="15">
+                    <div class="day-number">15</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="16">
+                    <div class="day-number">16</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="17">
+                    <div class="day-number">17</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="18">
+                    <div class="day-number">18</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="19">
+                    <div class="day-number">19</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="20">
+                    <div class="day-number">20</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                
+                <div class="day" data-month="12" data-day="21">
+                    <div class="day-number">21</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="22">
+                    <div class="day-number">22</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="23">
+                    <div class="day-number">23</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="24">
+                    <div class="day-number">24</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="25">
+                    <div class="day-number">25</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="26">
+                    <div class="day-number">26</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="27">
+                    <div class="day-number">27</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                
+                <div class="day" data-month="12" data-day="28">
+                    <div class="day-number">28</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="29">
+                    <div class="day-number">29</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="30">
+                    <div class="day-number">30</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+                <div class="day" data-month="12" data-day="31">
+                    <div class="day-number">31</div>
+                    <div class="day-note" contenteditable="true" data-placeholder="✏️"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span class="sync-indicator"></span>
+            🇨🇴 Nu Colombia
+        </div>
+
+        <div class="share-section">
+            <button class="btn" onclick="shareCalendar()">🔗 Compartir Link</button>
+            <button class="btn secondary" onclick="refreshCalendar()">🔄 Recargar</button>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Sistema de almacenamiento colaborativo usando localStorage y hash
+        let calendarId = null;
+        let noteElements = [];
+        let saveTimeout = null;
+
+        // Obtener o crear ID del calendario
+        function getCalendarId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idFromUrl = urlParams.get('id');
+            
+            if (idFromUrl) {
+                return idFromUrl;
+            }
+            
+            // Generar nuevo ID único
+            return 'cal_' + Math.random().toString(36).substring(2, 11);
+        }
+
+        // Cargar datos del calendario desde localStorage global
+        function loadCalendarData(id) {
+            const key = `calendar_shared_${id}`;
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : {};
+        }
+
+        // Guardar datos del calendario
+        function saveCalendarData(id, data) {
+            const key = `calendar_shared_${id}`;
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        // Inicializar calendario
+        function initCalendar() {
+            calendarId = getCalendarId();
+            
+            // Actualizar URL sin recargar
+            const newUrl = `${window.location.pathname}?id=${calendarId}`;
+            window.history.replaceState({}, '', newUrl);
+            
+            // Destacar día actual automáticamente
+            const today = new Date();
+            const currentMonth = today.getMonth() + 1;
+            const currentDay = today.getDate();
+            
+            // Cargar datos existentes
+            const savedData = loadCalendarData(calendarId);
+            
+            noteElements = document.querySelectorAll('.day-note');
+            noteElements.forEach(note => {
+                const day = note.closest('.day');
+                if (day && day.dataset.month && day.dataset.day) {
+                    const key = `${day.dataset.month}-${day.dataset.day}`;
+                    
+                    // Destacar día actual
+                    const month = parseInt(day.dataset.month);
+                    const dayNum = parseInt(day.dataset.day);
+                    if (month === currentMonth && dayNum === currentDay) {
+                        day.classList.add('today');
+                    }
+                    
+                    // Cargar nota guardada
+                    if (savedData[key]) {
+                        note.textContent = savedData[key];
+                    }
+                    
+                    // Guardar cambios con delay
+                    note.addEventListener('input', () => {
+                        clearTimeout(saveTimeout);
+                        saveTimeout = setTimeout(() => {
+                            saveAllNotes();
+                        }, 1000);
+                    });
+                }
+            });
+            
+            showNotification('✅ Calendario cargado');
+        }
+
+        // Guardar todas las notas
+        function saveAllNotes() {
+            const data = {};
+            
+            noteElements.forEach(note => {
+                const day = note.closest('.day');
+                if (day && day.dataset.month && day.dataset.day) {
+                    const key = `${day.dataset.month}-${day.dataset.day}`;
+                    const value = note.textContent.trim();
+                    if (value) {
+                        data[key] = value;
+                    }
+                }
+            });
+            
+            saveCalendarData(calendarId, data);
+            showNotification('💾 Guardado automático');
+        }
+
+        // Compartir calendario
+        function shareCalendar() {
+            const url = `${window.location.origin}${window.location.pathname}?id=${calendarId}`;
+            
+            navigator.clipboard.writeText(url).then(() => {
+                showNotification('✅ Link copiado - Compártelo para colaborar');
+            }).catch(() => {
+                prompt('Copia este link:', url);
+            });
+        }
+
+        // Recargar calendario
+        function refreshCalendar() {
+            const savedData = loadCalendarData(calendarId);
+            
+            noteElements.forEach(note => {
+                const day = note.closest('.day');
+                if (day && day.dataset.month && day.dataset.day) {
+                    const key = `${day.dataset.month}-${day.dataset.day}`;
+                    note.textContent = savedData[key] || '';
+                }
+            });
+            
+            showNotification('🔄 Calendario actualizado');
+        }
+
+        // Mostrar notificación
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Iniciar cuando cargue la página
+        document.addEventListener('DOMContentLoaded', initCalendar);
+
+        // Auto-refrescar cada 10 segundos para ver cambios de otros
+        setInterval(() => {
+            const savedData = loadCalendarData(calendarId);
+            noteElements.forEach(note => {
+                const day = note.closest('.day');
+                if (day && day.dataset.month && day.dataset.day && document.activeElement !== note) {
+                    const key = `${day.dataset.month}-${day.dataset.day}`;
+                    const savedValue = savedData[key] || '';
+                    if (note.textContent !== savedValue) {
+                        note.textContent = savedValue;
+                    }
+                }
+            });
+        }, 10000);
+    </script>
+</body>
+</html>
